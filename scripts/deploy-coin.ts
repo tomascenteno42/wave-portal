@@ -1,7 +1,7 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  const K42Coin = await ethers.getContractFactory("K42Coin");
+  const K42Coin = await ethers.getContractFactory("K42");
   const K42 = await K42Coin.deploy();
 
   await K42.deployed();

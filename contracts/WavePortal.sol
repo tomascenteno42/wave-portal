@@ -5,10 +5,11 @@ pragma solidity ^0.8.0;
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "./K42Coin.sol";
+import "./K42.sol";
 
 contract WavePortal {
-    K42Coin private k42Coin;
+    K42 private k42;
+    address private owner;
 
     struct Wave {
         address waver;
@@ -29,8 +30,9 @@ contract WavePortal {
     BiggestWaver private biggestWaver = BiggestWaver(address(0), 0);
     Wave[] private waves;
 
-    constructor() payable {
-        console.log("Hello world from SmartContract!");
+    constructor(K42 token) payable {
+        owner = msg.sender;
+        k42 = token;
     }
 
     function wave(string memory _message) public {
@@ -42,7 +44,9 @@ contract WavePortal {
         if (walletWaveMap[msg.sender] > biggestWaver.waves) {
             biggestWaver.wallet = msg.sender;
             biggestWaver.waves = walletWaveMap[msg.sender];
-            k42Coin.mint(msg.sender, amount);
+
+            k42.grantMinterRole(owner);
+            k42.mint(msg.sender, amount);
         }
 
         emit NewWave(msg.sender, block.timestamp, _message);

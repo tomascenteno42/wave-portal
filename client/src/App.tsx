@@ -21,7 +21,9 @@ type FormSchema = {
 
 export default function App() {
   const contractABI = abi.abi;
-  const WAVE_PORTAL_CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS || "";
+
+  const WAVE_PORTAL_CONTRACT_ADDRESS =
+    process.env.REACT_APP_CONTRACT_ADDRESS || "";
 
   const [currentAccount, setCurrentAccount] = useState("");
   const [biggestWaver, setBiggestWaver] = useState<BiggestWaver | undefined>(
@@ -56,39 +58,7 @@ export default function App() {
     } catch (e) {
       console.log(e);
     }
-  }, []);
-
-  const wave = useCallback(async (input: FormSchema) => {
-    try {
-      const { ethereum } = window as any;
-
-      if (ethereum) {
-        const provider = new ethers.providers.Web3Provider(ethereum);
-        const signer = provider.getSigner();
-        const wavePortalContract = new ethers.Contract(
-          WAVE_PORTAL_CONTRACT_ADDRESS,
-          contractABI,
-          signer
-        );
-
-        const count = await wavePortalContract.getTotalWaves();
-        console.log("Retrieved total wave count...", count.toNumber());
-
-        const waveTxn = await wavePortalContract.wave(input.message);
-        console.log("Mining...", waveTxn.hash);
-
-        await waveTxn.wait();
-        console.log("Mined -- ", waveTxn.hash);
-
-        await getAllWaves();
-        await getBiggestWaver();
-      } else {
-        console.log("Ethereum object doesn't exist!");
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }, []);
+  }, [WAVE_PORTAL_CONTRACT_ADDRESS, contractABI]);
 
   const getAllWaves = useCallback(async () => {
     try {
@@ -102,6 +72,7 @@ export default function App() {
           contractABI,
           signer
         );
+
         const waves = await wavePortalContract.getWaves();
 
         const wavesCleaned: Wave[] = [];
@@ -121,8 +92,42 @@ export default function App() {
     } catch (error) {
       console.log(error);
     }
-  }, []);
+  }, [WAVE_PORTAL_CONTRACT_ADDRESS, contractABI]);
 
+  const wave = useCallback(
+    async (input: FormSchema) => {
+      try {
+        const { ethereum } = window as any;
+
+        if (ethereum) {
+          const provider = new ethers.providers.Web3Provider(ethereum);
+          const signer = provider.getSigner();
+          const wavePortalContract = new ethers.Contract(
+            WAVE_PORTAL_CONTRACT_ADDRESS,
+            contractABI,
+            signer
+          );
+
+          const count = await wavePortalContract.getTotalWaves();
+          console.log("Retrieved total wave count...", count.toNumber());
+
+          const waveTxn = await wavePortalContract.wave(input.message);
+          console.log("Mining...", waveTxn.hash);
+
+          await waveTxn.wait();
+          console.log("Mined -- ", waveTxn.hash);
+
+          await getAllWaves();
+          await getBiggestWaver();
+        } else {
+          console.log("Ethereum object doesn't exist!");
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    [WAVE_PORTAL_CONTRACT_ADDRESS, contractABI, getAllWaves, getBiggestWaver]
+  );
   const checkIfWalletIsConnected = useCallback(async () => {
     try {
       const { ethereum } = window as any;
@@ -152,7 +157,7 @@ export default function App() {
     } catch (error) {
       console.log(error);
     }
-  }, []);
+  }, [getAllWaves, getBiggestWaver]);
 
   const connectWallet = useCallback(async () => {
     try {
@@ -176,7 +181,7 @@ export default function App() {
 
   useEffect(() => {
     checkIfWalletIsConnected();
-  }, []);
+  }, [checkIfWalletIsConnected]);
 
   return (
     <div className="mainContainer">
