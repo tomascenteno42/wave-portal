@@ -231,10 +231,18 @@ export const HomePage: FC = () => {
             rounded="md"
             p={4}
             bg="blue.400"
+            wordBreak="break-all"
           >
-            <Text>Address: {wave.address}</Text>
-            <Text>Time: {wave.timestamp.toString()}</Text>
-            <Text>Message: {wave.message}</Text>
+            <HStack>
+              <Text fontWeight="medium">Address: </Text>
+              <Text as="span" fontWeight="bold">
+                {wave.address}
+              </Text>
+            </HStack>
+            <Text fontWeight="medium">
+              Time: {wave.timestamp.toLocaleString()}
+            </Text>
+            <Text fontWeight="medium">Message: {wave.message}</Text>
           </VStack>
         ))}
       </VStack>
