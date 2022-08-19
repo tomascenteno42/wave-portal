@@ -1,10 +1,10 @@
 /* eslint-disable no-process-exit */
-import * as hre from "hardhat";
+import { ethers } from "hardhat";
 
 const main = async () => {
-  const [deployer] = await hre.ethers.getSigners();
+  const [deployer] = await ethers.getSigners();
 
-  const waveContractFactory = await hre.ethers.getContractFactory("WavePortal");
+  const waveContractFactory = await ethers.getContractFactory("WavePortal");
   const waveContract = await waveContractFactory.deploy();
 
   await waveContract.deployed();
